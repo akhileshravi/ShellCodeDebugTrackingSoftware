@@ -1,4 +1,7 @@
 from PyQt5 import QtGui, QtCore
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt
+# from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QWidget, QAction, QTabWidget, QVBoxLayout, \
     QGroupBox, QHBoxLayout
 import sys, os
@@ -16,18 +19,39 @@ class Dialog_01(QMainWindow):
         self.tabWidget = QTabWidget()
         mainLayout.addWidget(self.tabWidget)
 
-        # self.tabWidget.tabBarClicked.connect(self.tabWidget, QWidget.SIGNAL("currentChanged(int)"), self.tabSelected)
-        # self.tabWidget.emit(self.tabWidget, QWidget.SIGNAL("currentChanged(int)"), self.tabSelected)
-        # self.tabWidget.tabBarClicked(self.whatTab)
-        # self.tabBarClicked(self.whatTab)
+        # self.tabWidget.connect(self.tabWidget, QWidget.SIGNAL("currentChanged(int)"), self.tabSelected)
         self.tabWidget.currentChanged.connect(self.whatTab)
+        # Reference: https://stackoverflow.com/questions/21562485/pyqt-qtabwidget-currentchanged
 
         myBoxLayout = QVBoxLayout()
         self.tabWidget.setLayout(myBoxLayout)
 
-        self.tabWidget.addTab(QWidget(),'Tab_01')
-        self.tabWidget.addTab(QWidget(),'Tab_02')
-        self.tabWidget.addTab(QWidget(),'Tab_03')
+        self.readme = 'ReadMe'
+        self.texteditor = 'TextEditor'
+        self.terminal = 'Terminal'
+        self.tabs = {}
+
+        readme = QWidget()
+        readme_layout = QVBoxLayout()
+        readme.setLayout(readme_layout)
+
+        label1 = QtWidgets.QLabel()
+        label1.setText("Sample Label \n Hi there! Keep up the good work!")
+        label1.setAlignment(Qt.AlignLeft)
+        readme_layout.addWidget(label1)
+        # Reference : https://www.tutorialspoint.com/pyqt/pyqt_qlabel_widget.htm
+
+
+        # self.tabs[self.readme] = QWidget()
+        self.tabs[self.readme] = readme
+        self.tabs[self.texteditor] = QWidget()
+        self.tabs[self.terminal] = QWidget()
+
+        self.tabWidget.addTab(self.tabs[self.readme],self.readme)
+        self.tabWidget.addTab(self.tabs[self.texteditor],self.texteditor)
+        self.tabWidget.addTab(self.tabs[self.terminal],self.terminal)
+
+
 
 
         ButtonBox = QGroupBox()
