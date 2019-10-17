@@ -16,8 +16,11 @@ class Dialog_01(QMainWindow):
         self.tabWidget = QTabWidget()
         mainLayout.addWidget(self.tabWidget)
 
-        # self.tabWidget.connect(self.tabWidget, QWidget.SIGNAL("currentChanged(int)"), self.tabSelected)
+        # self.tabWidget.tabBarClicked.connect(self.tabWidget, QWidget.SIGNAL("currentChanged(int)"), self.tabSelected)
         # self.tabWidget.emit(self.tabWidget, QWidget.SIGNAL("currentChanged(int)"), self.tabSelected)
+        # self.tabWidget.tabBarClicked(self.whatTab)
+        # self.tabBarClicked(self.whatTab)
+        self.tabWidget.currentChanged.connect(self.whatTab)
 
         myBoxLayout = QVBoxLayout()
         self.tabWidget.setLayout(myBoxLayout)
