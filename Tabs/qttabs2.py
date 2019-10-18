@@ -1,4 +1,4 @@
-from PyQt5 import QtGui, QtCore
+# from PyQt5 import QtGui, QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QWidget, QAction, QTabWidget, QVBoxLayout, \
     QGroupBox, QHBoxLayout
 import sys, os
+import subprocess
 
 
 class Dialog_01(QMainWindow):
@@ -28,8 +29,8 @@ class Dialog_01(QMainWindow):
         self.tabWidget.setLayout(myBoxLayout)
 
         self.readme = 'ReadMe'
-        self.codeeditor = 'Code Editor'
-        self.terminal = 'Terminal' #TODO: Execute button has to be added to this tab
+        self.codeEditor = 'Code Editor'
+        self.terminal = 'Terminal'
         self.tabs = {}
 
         readme = QWidget()
@@ -44,24 +45,36 @@ class Dialog_01(QMainWindow):
         readme_layout.addWidget(self.label1)
         # Reference : https://www.tutorialspoint.com/pyqt/pyqt_qlabel_widget.htm
 
-        codeeditor = QWidget()
-        codeeditor_layout = QVBoxLayout()
-        codeeditor.setLayout(codeeditor_layout)
+        codeEditor = QWidget()
+        codeEditor_layout = QVBoxLayout()
+        codeEditor.setLayout(codeEditor_layout)
 
         self.textbox = QTextEdit(self)
-        self.textbox.setText()
+        with open('Code1.txt', 'r') as f:
+            code = f.read()
+        self.textbox.setText(code)
         # self.textbox.move(20, 20)
         # self.textbox.resize(280,200)
-        codeeditor_layout.addWidget(self.textbox)
+        codeEditor_layout.addWidget(self.textbox)
+
+        terminal = QWidget()
+        terminal_layout = QVBoxLayout()
+        terminal.setLayout(terminal_layout)
+        self.label2 = QtWidgets.QLabel()
+        terminal_layout.addWidget(self.label2)
+
+        self.execute = QPushButton("Execute")
+        self.execute.clicked.connect(self.executeClicked)
+        terminal_layout.addWidget(self.execute)
 
 
         # self.tabs[self.readme] = QWidget()
         self.tabs[self.readme] = readme
-        self.tabs[self.codeeditor] = codeeditor
-        self.tabs[self.terminal] = QWidget()
+        self.tabs[self.codeEditor] = codeEditor
+        self.tabs[self.terminal] = terminal
 
         self.tabWidget.addTab(self.tabs[self.readme],self.readme)
-        self.tabWidget.addTab(self.tabs[self.codeeditor], self.codeeditor)
+        self.tabWidget.addTab(self.tabs[self.codeEditor], self.codeEditor)
         self.tabWidget.addTab(self.tabs[self.terminal],self.terminal)
 
 
@@ -91,6 +104,9 @@ class Dialog_01(QMainWindow):
         ButtonsLayout.addWidget(Task_4)
         Task_4.clicked.connect(self.Task_4_Click)
 
+        self.textbox.textChanged.connect(self.codeChanged)
+
+
     def tabSelected(self, arg=None):
         print ('\n\t tabSelected() current Tab index =', arg)
 
@@ -101,6 +117,20 @@ class Dialog_01(QMainWindow):
         # currentWidget = self.tabWidget.currentWidget()
 
         print ('\n\t Query: current Tab index =', currentIndex)
+
+
+    def codeChanged(self):
+        print("Code changed")
+
+    def executeClicked(self):
+        code = self.textbox.toPlainText()
+        # p = subprocess.Popen("ls hello", stdout=subprocess.PIPE, shell=True)
+        p = subprocess.Popen(code, stdout=subprocess.PIPE, shell=True)
+        # TODO: Take errors from the Linux Shell commands and display them
+
+        (output, err) = p.communicate()
+        outstr = output.decode('utf-8')
+        self.label2.setText(outstr)
 
     def Task_1_Click(self):
         #TODO: Add timer to Task-click
