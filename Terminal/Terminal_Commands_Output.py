@@ -3,7 +3,10 @@
 import subprocess
 
 ## call date command ##
-p = subprocess.Popen("ls", stdout=subprocess.PIPE, shell=True)
+import os
+print(os.listdir())
+p = subprocess.Popen("ls hello", stdout=subprocess.PIPE, shell=True)
+#TODO: Take errors from the Linux Shell commands and display them
 
 ## Talk with date command i.e. read data from stdout and stderr. Store this info in tuple ##
 ## Interact with process: Send data to stdin. Read data from stdout and stderr, until end-of-file is reached.  ##
