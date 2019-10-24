@@ -41,8 +41,8 @@ class Dialog_01(QMainWindow):
         self.tabWidget.currentChanged.connect(self.whatTab)
         # Reference: https://stackoverflow.com/questions/21562485/pyqt-qtabwidget-currentchanged
 
-        myBoxLayout = QVBoxLayout()
-        self.tabWidget.setLayout(myBoxLayout)
+        self.tabLayout = QVBoxLayout()
+        self.tabWidget.setLayout(self.tabLayout)
 
         self.readMe = 'ReadMe'
         self.codeEditor = 'Code Editor'
@@ -50,18 +50,22 @@ class Dialog_01(QMainWindow):
         self.manual = 'Manual'
         self.tabs = {}
 
+
+        ################ ReadMe Tab ################
         readme = QWidget()
         readMe_layout = QVBoxLayout()
         readme.setLayout(readMe_layout)
 
-        self.label1 = QtWidgets.QLabel()
+        self.readmeLabel = QtWidgets.QLabel()
         with open('ReadMe1.txt', 'r') as f:
             text = f.read()
-        self.label1.setText(text)
-        self.label1.setAlignment(Qt.AlignLeft)
-        readMe_layout.addWidget(self.label1)
+        self.readmeLabel.setText(text)
+        self.readmeLabel.setAlignment(Qt.AlignLeft)
+        readMe_layout.addWidget(self.readmeLabel)
         # Reference : https://www.tutorialspoint.com/pyqt/pyqt_qlabel_widget.htm
 
+
+        ################ Code Editor Tab ################
         codeEditor = QWidget()
         codeEditor_layout = QVBoxLayout()
         codeEditor.setLayout(codeEditor_layout)
@@ -73,34 +77,48 @@ class Dialog_01(QMainWindow):
         # self.textbox.move(20, 20)
         # self.textbox.resize(280,200)
         codeEditor_layout.addWidget(self.textbox)
+        self.codePrevChangedState = None
 
+
+        ################ Terminal Tab ################
         terminal = QWidget()
-        terminal_layout = QVBoxLayout()
-        terminal.setLayout(terminal_layout)
-        self.label2 = QtWidgets.QLabel()
-        terminal_layout.addWidget(self.label2)
+        self.terminalLayout = QVBoxLayout()
+        terminal.setLayout(self.terminalLayout)
+        self.terminalLabel = QtWidgets.QLabel()
+        self.terminalLayout.addWidget(self.terminalLabel)
 
         self.execute = QPushButton("Execute")
-        terminal_layout.addWidget(self.execute)
+        self.terminalLayout.addWidget(self.execute)
 
 
+        ################ Manual Tab ################
         manual = QWidget()
-        manual_layout = QVBoxLayout()
-        manual.setLayout(manual_layout)
-        self.manual_label = QtWidgets.QLabel()
-        manual_layout.addWidget(self.manual_label)
+        self.manualLayout = QVBoxLayout()
+        manual.setLayout(self.manualLayout)
+        self.manualLabel = QtWidgets.QLabel()
+        self.manualLayout.addWidget(self.manualLabel)
 
         self.numManualPages = 4
+
         self.manualPageLabels = QtWidgets.QLabel()
-        self.manualButtons = [QPushButton("Page %d" % i) for i in range(4)]
-        self.manualPageLabels.setText("This is page %d.\nDo the following.\n  1. Read.\n  Write.\n  3. Execute" % (1))
+        self.manualButtons = [QPushButton("Page %d" % (i+1)) for i in range(self.numManualPages)]
+        self.manualPageLabels.setText("This is page %d.\nDo the following.\n  1. Read.\n  2. Write.\n  3. Execute" % (1))
         self.manualPageClicked = [self.manualPage1, self.manualPage2, self.manualPage3, self.manualPage4]
-        manual_layout.addWidget(self.manualPageLabels)
+        self.manualButtonBox = QGroupBox()
+        self.manualButtonsLayout = QHBoxLayout()
+        self.manualButtonBox.setLayout(self.manualButtonsLayout)
+
+        self.manualLayout.addWidget(self.manualPageLabels)
+
         for i in range(self.numManualPages):
-            manual_layout.addWidget(self.manualButtons[i])
+            self.manualButtonsLayout.addWidget(self.manualButtons[i])
+            self.manualButtons[i].clicked.connect(self.manualPageClicked[i])
+
+        self.manualLayout.addWidget(self.manualButtonBox)
         self.currentManualPage = None
 
 
+        ################ Tab Layout ################
         self.tabIndex = {0: self.readMe, 1: self.codeEditor, 2: self.terminal, 3:self.manual}
         self.tabs[self.readMe] = readme
         self.tabs[self.codeEditor] = codeEditor
@@ -112,27 +130,34 @@ class Dialog_01(QMainWindow):
         self.tabWidget.addTab(self.tabs[self.terminal],self.terminal)
         self.tabWidget.addTab(self.tabs[self.manual], self.manual)
 
-        self.ButtonBox = QGroupBox()
-        self.ButtonsLayout = QHBoxLayout()
-        self.ButtonBox.setLayout(self.ButtonsLayout)
+        self.TaskButtonBox = QGroupBox()
+        self.TaskButtonsLayout = QHBoxLayout()
+        self.TaskButtonBox.setLayout(self.TaskButtonsLayout)
 
         # Button_01 = QPushButton("What Tab?")
-        # self.ButtonsLayout.addWidget(Button_01)
+        # self.TaskButtonsLayout.addWidget(Button_01)
         # Button_01.clicked.connect(self.whatTab)
 
+
+        ################ Tasks ################
         self.numTasks = 4
 
-        Task_1 = QPushButton("Task 1")
-        self.ButtonsLayout.addWidget(Task_1)
+        self.Task_Buttons = [QPushButton("Task %d" % (i+1)) for i in range(4)]
 
-        Task_2 = QPushButton("Task 2")
-        self.ButtonsLayout.addWidget(Task_2)
+        for i in range(self.numTasks):
+            self.TaskButtonsLayout.addWidget(self.Task_Buttons[i])
 
-        Task_3 = QPushButton("Task 3")
-        self.ButtonsLayout.addWidget(Task_3)
-
-        Task_4 = QPushButton("Task 4")
-        self.ButtonsLayout.addWidget(Task_4)
+        # Task_1 = QPushButton("Task 1")
+        # self.TaskButtonsLayout.addWidget(Task_1)
+        #
+        # Task_2 = QPushButton("Task 2")
+        # self.TaskButtonsLayout.addWidget(Task_2)
+        #
+        # Task_3 = QPushButton("Task 3")
+        # self.TaskButtonsLayout.addWidget(Task_3)
+        #
+        # Task_4 = QPushButton("Task 4")
+        # self.TaskButtonsLayout.addWidget(Task_4)
 
         self.latestCodeFiles = ["Code%d.txt" % (i+1) for i in  range(4)]
 
@@ -141,12 +166,15 @@ class Dialog_01(QMainWindow):
 
         self.startButton.clicked.connect(self.startButtonClicked) #, "Hello") #("Hello"))
         self.execute.clicked.connect(self.executeClicked)
+
+        self.Task_i_Click_functions = [self.Task_1_Click, self.Task_2_Click, self.Task_3_Click, self.Task_4_Click]
+
         for i in range(self.numTasks):
-            self.manualButtons[i].clicked.connect(self.manualPageClicked[i])
-        Task_1.clicked.connect(self.Task_1_Click)
-        Task_2.clicked.connect(self.Task_2_Click)
-        Task_3.clicked.connect(self.Task_3_Click)
-        Task_4.clicked.connect(self.Task_4_Click)
+            self.Task_Buttons[i].clicked.connect(self.Task_i_Click_functions[i])
+        # Task_1.clicked.connect(self.Task_1_Click)
+        # Task_2.clicked.connect(self.Task_2_Click)
+        # Task_3.clicked.connect(self.Task_3_Click)
+        # Task_4.clicked.connect(self.Task_4_Click)
 
         self.textbox.textChanged.connect(self.codeChanged)
 
@@ -154,28 +182,31 @@ class Dialog_01(QMainWindow):
 
         # self.actionExit.triggered.connect(self.close)
 
+
     def startButtonClicked(self, s):
         print(s)
         self.mainLayout.removeWidget(self.startButton)
         self.mainLayout.addWidget(self.tabWidget)
-        self.mainLayout.addWidget(self.ButtonBox)
+        self.mainLayout.addWidget(self.TaskButtonBox)
         self.currentTabName = self.tabIndex[0]
         self.time_logger.info("Start Time: %s\n\n" % time.asctime())
         self.startTime = time.time()
 
+
     def tabSelected(self, arg=None):
         print ('\n\t tabSelected() current Tab index =', arg)
+
 
     def manualPage_i(self, i):
         pageNum = i
         if self.currentManualPage != pageNum:
             self.currentManualPage = pageNum
             self.manualPageLabels.setText(
-                "This is page %d.\nDo the following.\n  1. Read.\n  Write.\n  3. Execute" % (pageNum))
+                "This is page %d.\nDo the following.\n  1. Read.\n  2. Write.\n  3. Execute" % (pageNum))
             now = time.time() - self.startTime
             now_minutes = int(now // 60)
             now_seconds = round(now % 60, 1)
-            self.time_logger.info("\nTask 1 %d:%.1fs" % (now_minutes, now_seconds))
+            self.time_logger.info("\nTask %d %d:%.1fs" % (self.currentTask, now_minutes, now_seconds))
             self.time_logger.info("Manual page %d:   %d:%.1fs" % (pageNum, now_minutes, now_seconds))
 
     def manualPage1(self):
@@ -190,6 +221,7 @@ class Dialog_01(QMainWindow):
     def manualPage4(self):
         self.manualPage_i(4)
 
+
     def whatTab(self):
         currentIndex = self.tabWidget.currentIndex()
         currentTabName = self.tabIndex[currentIndex]
@@ -200,6 +232,10 @@ class Dialog_01(QMainWindow):
                 now_minutes = int(now//60)
                 now_seconds = round(now%60,1)
                 self.time_logger.info("Tab %s:   %d:%.1fs" % (currentTabName, now_minutes, now_seconds))
+                pageNum = 1
+                self.currentManualPage = pageNum
+                self.manualPageLabels.setText(
+                    "This is page %d.\nDo the following.\n  1. Read.\n  2. Write.\n  3. Execute" % (pageNum))
             except AttributeError:
                 now_minutes = 0
                 now_seconds = 0
@@ -209,8 +245,10 @@ class Dialog_01(QMainWindow):
 
         print ('\n\t Query: current Tab index =', currentIndex)
 
+
     def codeChanged(self):
         # TODO: Summarised code modification logging
+        # nt
         code = self.textbox.toPlainText()
         now = time.time() - self.startTime
         now_minutes = int(now // 60)
@@ -238,6 +276,7 @@ class Dialog_01(QMainWindow):
                 pass
         self.time_logger.info("Exit:   %d:%.1fs" % (now_minutes, now_seconds))
 
+
     def executeClicked(self):
         code = self.textbox.toPlainText()
         # p = subprocess.Popen("ls hello", stdout=subprocess.PIPE, shell=True)
@@ -247,11 +286,14 @@ class Dialog_01(QMainWindow):
         # TODO: When does the task end (complete)
         (output, err) = p.communicate()
         outstr = output.decode('utf-8')
-        self.label2.setText(outstr)
+        self.terminalLabel.setText(outstr)
+
 
     def Task_i_Click(self, i):
         taskNum = i
         if self.taskStartTimes[taskNum-1] is None:
+            self.currentTask = taskNum
+            self.codePrevChangedState = None
             now = time.time() - self.startTime
             now_minutes = int(now // 60)
             now_seconds = round(now % 60, 1)
@@ -261,6 +303,7 @@ class Dialog_01(QMainWindow):
 
         if self.currentTask != taskNum:
             self.currentTask = taskNum
+            self.codePrevChangedState = None
             now = time.time() - self.startTime
             now_minutes = int(now // 60)
             now_seconds = round(now % 60, 1)
@@ -270,7 +313,7 @@ class Dialog_01(QMainWindow):
             self.tabWidget.setCurrentIndex(0)
             with open('ReadMe%d.txt' % taskNum, 'r') as f:
                 text = f.read()
-                self.label1.setText(text)
+                self.readmeLabel.setText(text)
 
             with open(self.latestCodeFiles[0], 'r') as f:
                 code = f.read()
@@ -287,6 +330,8 @@ class Dialog_01(QMainWindow):
 
     def Task_4_Click(self):
         self.Task_i_Click(4)
+
+
 
 
 if __name__ == '__main__':
