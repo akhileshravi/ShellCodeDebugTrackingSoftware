@@ -23,7 +23,27 @@ class Dialog_01(QMainWindow):
 
         self.mainLayout = QVBoxLayout()
         self.startButton = QPushButton("Start")
+
+        self.codeIntervalLabel = QtWidgets.QLabel("Code Interval Time (seconds):")
+
+        self.codeIntervalText = QLineEdit()
+        self.codeIntervalText.setText("5")
+        self.codeIntervalTime = 5
+
+        # self.codeIntervalLabel.move(0, 100)
+        # self.codeIntervalLabel.resize(20, 20)
+        # self.codeIntervalLabel.resize(10, 200)
+        self.mainLayout.addWidget(self.codeIntervalLabel)
+        self.mainLayout.addWidget(self.codeIntervalText)
         self.mainLayout.addWidget(self.startButton)
+
+        self.codeIntervalLabel.setAlignment(Qt.AlignBottom)
+        # self.codeIntervalText.setAlignment(Qt.AlignTop)
+        # self.codeIntervalText.move(0, -100)
+        # self.startButton.move(100, 0)
+        # self.codeIntervalLabel.move(100, 100)
+        # self.textbox.move(20, 20)
+        # self.textbox.move(20, 20)
 
         self.mainWidget = QWidget()
         self.setCentralWidget(self.mainWidget)
@@ -32,6 +52,7 @@ class Dialog_01(QMainWindow):
 
         self.currentTask = None
         self.currentTask = 1
+        self.currentTaskNumLabel = QLabel("Task %d" % self.currentTask)
 
         self.tabWidget = QTabWidget()
 
@@ -147,19 +168,11 @@ class Dialog_01(QMainWindow):
         for i in range(self.numTasks):
             self.TaskButtonsLayout.addWidget(self.Task_Buttons[i])
 
-        # Task_1 = QPushButton("Task 1")
-        # self.TaskButtonsLayout.addWidget(Task_1)
-        #
-        # Task_2 = QPushButton("Task 2")
-        # self.TaskButtonsLayout.addWidget(Task_2)
-        #
-        # Task_3 = QPushButton("Task 3")
-        # self.TaskButtonsLayout.addWidget(Task_3)
-        #
-        # Task_4 = QPushButton("Task 4")
-        # self.TaskButtonsLayout.addWidget(Task_4)
-
-        self.latestCodeFiles = ["Code%d.txt" % (i+1) for i in  range(4)]
+        self.latestCodeFiles = ["Code%d.txt" % (i+1) for i in  range(self.numTasks)]
+        self.latestCodes = ['' for i in range(self.numTasks)]
+        for i in range(self.numTasks):
+            with open("Code%d.txt" % (i+1), 'r') as f:
+                self.latestCodes[i] = f.read()
 
         self.taskStartTimes = [None for i in range(self.numTasks)]
         self.taskEndTimes = [None for i in range(self.numTasks)]
@@ -171,10 +184,6 @@ class Dialog_01(QMainWindow):
 
         for i in range(self.numTasks):
             self.Task_Buttons[i].clicked.connect(self.Task_i_Click_functions[i])
-        # Task_1.clicked.connect(self.Task_1_Click)
-        # Task_2.clicked.connect(self.Task_2_Click)
-        # Task_3.clicked.connect(self.Task_3_Click)
-        # Task_4.clicked.connect(self.Task_4_Click)
 
         self.textbox.textChanged.connect(self.codeChanged)
 
@@ -184,8 +193,22 @@ class Dialog_01(QMainWindow):
 
 
     def startButtonClicked(self, s):
-        print(s)
+        # print(s)
+        try:
+            self.codeIntervalTime = float(self.codeIntervalText.text())
+            print ("Code interval time: %.2f" % self.codeIntervalTime)
+        except ValueError:
+            return
+        self.codeIntervalLabel.setDisabled(True)
+        self.codeIntervalLabel.setVisible(False)
+        self.codeIntervalText.setDisabled(True)
+        self.codeIntervalText.setVisible(False)
+        self.startButton.setDisabled(True)
+        self.startButton.setVisible(False)
         self.mainLayout.removeWidget(self.startButton)
+        self.mainLayout.removeWidget(self.codeIntervalLabel)
+        self.mainLayout.removeWidget(self.codeIntervalText)
+        self.mainLayout.addWidget(self.currentTaskNumLabel)
         self.mainLayout.addWidget(self.tabWidget)
         self.mainLayout.addWidget(self.TaskButtonBox)
         self.currentTabName = self.tabIndex[0]
@@ -293,13 +316,24 @@ class Dialog_01(QMainWindow):
         taskNum = i
         if self.taskStartTimes[taskNum-1] is None:
             self.currentTask = taskNum
+            self.currentTaskNumLabel.setText("Task %d" % taskNum)
             self.codePrevChangedState = None
+
             now = time.time() - self.startTime
             now_minutes = int(now // 60)
             now_seconds = round(now % 60, 1)
             self.time_logger.info("\nTask %d %d:%.1fs" % (taskNum, now_minutes, now_seconds))
             self.time_logger.info("Tab %s:   %d:%.1fs" % ("Read Me", now_minutes, now_seconds))
             self.taskStartTimes[taskNum-1] = [now_minutes, now_seconds]
+
+            self.tabWidget.setCurrentIndex(0)
+            with open('ReadMe%d.txt' % taskNum, 'r') as f:
+                text = f.read()
+                self.readmeLabel.setText(text)
+
+            with open(self.latestCodeFiles[0], 'r') as f:
+                code = f.read()
+                self.textbox.setText(code)
 
         if self.currentTask != taskNum:
             self.currentTask = taskNum
