@@ -1,0 +1,22 @@
+New York---Tokyo -1000$
+Tokyo---Beijing -1230$
+Beijing---Japan -1211$
+Japan---New York -1311$
+New York---Tokyo -1000$
+New York---Tokyo -1000$
+Tokyo---Beijing -1230$
+Beijing---Japan -1211$
+Japan---New York -1311$
+New York---Tokyo -1000
+Tokyo---Beijing -1230$
+Beijing---Japan -1211$
+Japan---New York -1311$
+New York---Tokyo -1000$
+Tokyo---Beijing -1230$
+Beijing---Japan -1211$
+Japan---New York -1311$
+New York---Tokyo -1000
+Tokyo---Beijing -1230$
+Beijing---Japan -1211$
+Japan---New York -1311$
+New York---Tokyo -1000$

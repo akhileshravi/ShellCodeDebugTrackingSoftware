@@ -14,13 +14,8 @@ from functools import partial
 class MainAppWindow(QMainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
-        # self.today = datetime.date()
-        # logging.basicConfig(format='%(name)s: %(asctime)s : %(message)s', level=logging.INFO,
-        #                     filename="TimeLogger.log")
         logging.basicConfig(format='%(message)s', level=logging.INFO, filename="TimeLogger.log")
         self.time_logger = logging.getLogger('Time')
-        # logging.basicConfig(format='%(message)s', level=logging.INFO, filename="CodeLogger.log")
-        # self.code_logger = logging.getLogger('Code')
         # TODO: Have proper formatting for the time_logger
 
         self.mainLayout = QVBoxLayout()
@@ -32,20 +27,11 @@ class MainAppWindow(QMainWindow):
         self.codeIntervalText.setText("5")
         self.codeIntervalTime = 5
 
-        # self.codeIntervalLabel.move(0, 100)
-        # self.codeIntervalLabel.resize(20, 20)
-        # self.codeIntervalLabel.resize(10, 200)
         self.mainLayout.addWidget(self.codeIntervalLabel)
         self.mainLayout.addWidget(self.codeIntervalText)
         self.mainLayout.addWidget(self.startButton)
 
         self.codeIntervalLabel.setAlignment(Qt.AlignBottom)
-        # self.codeIntervalText.setAlignment(Qt.AlignTop)
-        # self.codeIntervalText.move(0, -100)
-        # self.startButton.move(100, 0)
-        # self.codeIntervalLabel.move(100, 100)
-        # self.codeEditorTextBox.move(20, 20)
-        # self.codeEditorTextBox.move(20, 20)
 
         self.mainWidget = QWidget()
         self.setCentralWidget(self.mainWidget)
@@ -92,10 +78,7 @@ class MainAppWindow(QMainWindow):
         with open('Code1.txt', 'r') as f:
             code = f.read()
         self.codeEditorTextBox.setText(code)
-        # self.codeEditorTextBox.move(20, 20)
-        # self.codeEditorTextBox.resize(280,200)
         codeEditor_layout.addWidget(self.codeEditorTextBox)
-        # self.codePrevChangedState = None
 
         self.latestCodeFiles = ["Code%d.txt" % (i + 1) for i in range(self.numTasks)]
         self.latestCodes = [''] * self.numTasks
@@ -188,8 +171,6 @@ class MainAppWindow(QMainWindow):
         self.codeEditorTextBox.textChanged.connect(self.codeChanged)
 
         # TODO: When was each task started and ended
-
-        # self.actionExit.triggered.connect(self.close)
 
     def startButtonClicked(self, s="Default"):
         if not s:
@@ -347,7 +328,7 @@ class MainAppWindow(QMainWindow):
 
     def executeClicked(self):
         code = self.codeEditorTextBox.toPlainText()
-        # p = subprocess.Popen("ls hello", stdout=subprocess.PIPE, shell=True)
+        # p = subprocess.Popen("ls hello", stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
         p = subprocess.Popen(code, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
         # TODO: Save the task status
         # TODO: When does the task end (complete)
