@@ -1,21 +1,20 @@
-# from PyQt5 import QtGui, QtCore
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
-# from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QWidget, QAction, QTabWidget, QVBoxLayout, \
-    QGroupBox, QHBoxLayout
-import sys, os
+import sys
 import subprocess
 import logging
 import time
 from functools import partial
+from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QTabWidget, QVBoxLayout, QGroupBox,
+                             QHBoxLayout)
 
 class Dialog_01(QMainWindow):
     def __init__(self):
-        super(QMainWindow,self).__init__()
+        super(QMainWindow, self).__init__()
         # self.today = datetime.date()
-        # logging.basicConfig(format='%(name)s: %(asctime)s : %(message)s', level=logging.INFO, filename="TimeLogger.log")
+        # logging.basicConfig(format='%(name)s: %(asctime)s : %(message)s', level=logging.INFO,
+        #                     filename="TimeLogger.log")
         logging.basicConfig(format='%(message)s', level=logging.INFO, filename="TimeLogger.log")
         self.time_logger = logging.getLogger('Time')
         # logging.basicConfig(format='%(message)s', level=logging.INFO, filename="CodeLogger.log")
@@ -50,7 +49,6 @@ class Dialog_01(QMainWindow):
         self.setCentralWidget(self.mainWidget)
         self.mainWidget.setLayout(self.mainLayout)
 
-
         self.currentTask = None
         self.currentTask = 1
         self.currentTaskNumLabel = QLabel("Task %d" % self.currentTask)
@@ -70,7 +68,6 @@ class Dialog_01(QMainWindow):
 
         self.numTasks = 4
 
-
         ################ ReadMe Tab ################
         readme = QWidget()
         readMe_layout = QVBoxLayout()
@@ -83,7 +80,6 @@ class Dialog_01(QMainWindow):
         self.readmeLabel.setAlignment(Qt.AlignLeft)
         readMe_layout.addWidget(self.readmeLabel)
         # Reference : https://www.tutorialspoint.com/pyqt/pyqt_qlabel_widget.htm
-
 
         ################ Code Editor Tab ################
         codeEditor = QWidget()
@@ -109,8 +105,6 @@ class Dialog_01(QMainWindow):
         self.codeChangeStartTime = [None] * self.numTasks
         self.previousCodeTask = self.currentTask
 
-
-
         ################ Terminal Tab ################
         terminal = QWidget()
         self.terminalLayout = QVBoxLayout()
@@ -121,19 +115,20 @@ class Dialog_01(QMainWindow):
         self.execute = QPushButton("Execute")
         self.terminalLayout.addWidget(self.execute)
 
-
         ################ Manual Tab ################
         manual = QWidget()
         self.manualLayout = QVBoxLayout()
         manual.setLayout(self.manualLayout)
         self.manualLabel = QtWidgets.QLabel()
+        self.manualLabel.setAlignment(Qt.AlignTop)
         self.manualLayout.addWidget(self.manualLabel)
 
         self.numManualPages = 4
 
         self.manualPageLabels = QtWidgets.QLabel()
-        self.manualButtons = [QPushButton("Page %d" % (i+1)) for i in range(self.numManualPages)]
-        self.manualPageLabels.setText("This is page %d.\nDo the following.\n  1. Read.\n  2. Write.\n  3. Execute" % (1))
+        self.manualButtons = [QPushButton("Page %d" % (i + 1)) for i in range(self.numManualPages)]
+        self.manualPageLabels.setText(
+            "This is page %d.\nDo the following.\n  1. Read.\n  2. Write.\n  3. Execute" % 1)
         self.manualPageClicked = [self.manualPage1, self.manualPage2, self.manualPage3, self.manualPage4]
         self.manualButtonBox = QGroupBox()
         self.manualButtonsLayout = QHBoxLayout()
@@ -148,9 +143,8 @@ class Dialog_01(QMainWindow):
         self.manualLayout.addWidget(self.manualButtonBox)
         self.currentManualPage = None
 
-
         ################ Tab Layout ################
-        self.tabIndex = {0: self.readMe, 1: self.codeEditor, 2: self.terminal, 3:self.manual}
+        self.tabIndex = {0: self.readMe, 1: self.codeEditor, 2: self.terminal, 3: self.manual}
         self.tabs[self.readMe] = readme
         self.tabs[self.codeEditor] = codeEditor
         self.tabs[self.terminal] = terminal
@@ -158,9 +152,8 @@ class Dialog_01(QMainWindow):
 
         self.tabWidget.addTab(self.tabs[self.readMe], self.readMe)
         self.tabWidget.addTab(self.tabs[self.codeEditor], self.codeEditor)
-        self.tabWidget.addTab(self.tabs[self.terminal],self.terminal)
+        self.tabWidget.addTab(self.tabs[self.terminal], self.terminal)
         self.tabWidget.addTab(self.tabs[self.manual], self.manual)
-
 
         ################ Tasks ################
         # self.numTasks ->  # Defined earlier
@@ -173,7 +166,7 @@ class Dialog_01(QMainWindow):
         # self.TaskButtonsLayout.addWidget(Button_01)
         # Button_01.clicked.connect(self.whatTab)
 
-        self.Task_Buttons = [QPushButton("Task %d" % (i+1)) for i in range(4)]
+        self.Task_Buttons = [QPushButton("Task %d" % (i + 1)) for i in range(4)]
 
         for i in range(self.numTasks):
             self.TaskButtonsLayout.addWidget(self.Task_Buttons[i])
@@ -181,9 +174,8 @@ class Dialog_01(QMainWindow):
         self.taskStartTimes = [None for i in range(self.numTasks)]
         self.taskEndTimes = [None for i in range(self.numTasks)]
 
-
         ################ Click Events ################
-        self.startButton.clicked.connect(self.startButtonClicked) #, "Hello") #("Hello"))
+        self.startButton.clicked.connect(self.startButtonClicked)  # , "Hello") #("Hello"))
         # self.startButton.clicked.connect(lambda: self.startButtonClicked("hello"))
         # self.startButton.clicked.connect(partial(self.startButtonClicked, "hello"))
 
@@ -193,20 +185,19 @@ class Dialog_01(QMainWindow):
 
         self.execute.clicked.connect(self.executeClicked)
 
-        self.Task_i_Click_functions = [self.Task_1_Click, self.Task_2_Click, self.Task_3_Click, self.Task_4_Click]
+        self.Task_i_Click_functions = [self.task_1_Click, self.task_2_Click, self.task_3_Click, self.task_4_Click]
 
         for i in range(self.numTasks):
             self.Task_Buttons[i].clicked.connect(self.Task_i_Click_functions[i])
 
         # for i in range(self.numTasks):
-        #     self.Task_Buttons[i].clicked.connect(lambda: self.Task_i_Click(i+1))
+        #     self.Task_Buttons[i].clicked.connect(lambda: self.task_i_Click(i+1))
 
         self.codeEditorTextBox.textChanged.connect(self.codeChanged)
 
         # TODO: When was each task started and ended
 
         # self.actionExit.triggered.connect(self.close)
-
 
     def startButtonClicked(self, s="Default"):
         if not s:
@@ -215,7 +206,7 @@ class Dialog_01(QMainWindow):
             print(s)
         try:
             self.codeIntervalTime = float(self.codeIntervalText.text())
-            print ("Code interval time: %.2f" % self.codeIntervalTime)
+            print("Code interval time: %.2f" % self.codeIntervalTime)
         except ValueError:
             return
         self.codeIntervalLabel.setDisabled(True)
@@ -234,17 +225,15 @@ class Dialog_01(QMainWindow):
         self.time_logger.info("Start Time: %s\n\n" % time.asctime())
         self.startTime = time.time()
 
-
     def tabSelected(self, arg=None):
-        print ('\n\t tabSelected() current Tab index =', arg)
-
+        print('\n\t tabSelected() current Tab index =', arg)
 
     def manualPage_i(self, i):
         pageNum = i
         if self.currentManualPage != pageNum:
             self.currentManualPage = pageNum
             self.manualPageLabels.setText(
-                "This is page %d.\nDo the following.\n  1. Read.\n  2. Write.\n  3. Execute" % (pageNum))
+                "This is page %d.\nDo the following.\n  1. Read.\n  2. Write.\n  3. Execute" % pageNum)
             now = time.time() - self.startTime
             now_minutes = int(now // 60)
             now_seconds = round(now % 60, 1)
@@ -263,7 +252,6 @@ class Dialog_01(QMainWindow):
     def manualPage4(self):
         self.manualPage_i(4)
 
-
     def whatTab(self):
         currentIndex = self.tabWidget.currentIndex()
         currentTabName = self.tabIndex[currentIndex]
@@ -271,13 +259,13 @@ class Dialog_01(QMainWindow):
             self.currentTab = currentTabName
             try:
                 now = time.time() - self.startTime
-                now_minutes = int(now//60)
-                now_seconds = round(now%60,1)
+                now_minutes = int(now // 60)
+                now_seconds = round(now % 60, 1)
                 self.time_logger.info("Tab %s:   %d:%.1fs" % (currentTabName, now_minutes, now_seconds))
                 pageNum = 1
                 self.currentManualPage = pageNum
                 self.manualPageLabels.setText(
-                    "This is page %d.\nDo the following.\n  1. Read.\n  2. Write.\n  3. Execute" % (pageNum))
+                    "This is page %d.\nDo the following.\n  1. Read.\n  2. Write.\n  3. Execute" % pageNum)
 
                 # taskIndex = self.currentTask - 1
                 # self.codeEditorTextBox.setText(self.latestCodes[taskIndex])
@@ -291,9 +279,9 @@ class Dialog_01(QMainWindow):
                 # start
         # currentWidget = self.tabWidget.currentWidget()
 
-        print ('\n\t Query: current Tab index =', currentIndex)
+        print('\n\t Query: current Tab index =', currentIndex)
 
-
+    # noinspection PyTypeChecker
     def codeChanged(self):
         # TODO: Summarised code modification logging
         # nt
@@ -306,9 +294,10 @@ class Dialog_01(QMainWindow):
             taskNum = self.currentTask
         taskIndex = taskNum - 1
         now = time.time() - self.startTime
-        now_minutes = int(now // 60)
-        now_seconds = int(now % 60)
-        now_millis = int(now * 1000)
+
+        # now_minutes = int(now // 60)
+        # now_seconds = int(now % 60)
+        # now_millis = int(now * 1000)
 
         if self.latestCodeEditTime[taskIndex] is None:
             self.codeChangeStartTime[taskIndex] = now
@@ -323,8 +312,9 @@ class Dialog_01(QMainWindow):
             self.codeChangedLog(taskIndex)
         code = self.codeEditorTextBox.toPlainText()
         self.latestCodes[self.currentTask - 1] = code
-        self.codeEditorTextBox.setText(code)
+        # self.codeEditorTextBox.setText(code)   #DoNOT uncomment this line
 
+    # noinspection PyTypeChecker
     def codeChangedLog(self, taskIndex):
         prevStartTime = self.codeChangeStartTime[taskIndex]
         prevEndTime = self.latestCodeEditTime[taskIndex]
@@ -345,7 +335,6 @@ class Dialog_01(QMainWindow):
             start_minutes, start_seconds, end_minutes, end_seconds))
         print("Code changed")
 
-
     def closeEvent(self, event):
         now = time.time() - self.startTime
         now_minutes = int(now // 60)
@@ -361,30 +350,36 @@ class Dialog_01(QMainWindow):
             if self.taskEndTimes[i] is None:
                 self.taskEndTimes[i] = [now_minutes, now_seconds, now_millis]
             try:
-                self.time_logger.info("Task %d:   Start: %d %.1fs" % (i+1, self.taskStartTimes[i][0], self.taskStartTimes[i][1]))
+                self.time_logger.info(
+                    "Task %d:   Start: %d %.1fs" % (i + 1, self.taskStartTimes[i][0], self.taskStartTimes[i][1]))
                 self.time_logger.info(
                     "Task %d:   End: %d %.1fs \n" % (i + 1, self.taskEndTimes[i][0], self.taskEndTimes[i][1]))
             except:
                 pass
         self.time_logger.info("Exit:   %d:%.1fs" % (now_minutes, now_seconds))
 
-
     def executeClicked(self):
         code = self.codeEditorTextBox.toPlainText()
         # p = subprocess.Popen("ls hello", stdout=subprocess.PIPE, shell=True)
-        p = subprocess.Popen(code, stdout=subprocess.PIPE, shell=True)
-        # TODO: Take errors from the Linux Shell commands and display them
+        p = subprocess.Popen(code, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
         # TODO: Save the task status
         # TODO: When does the task end (complete)
         (output, err) = p.communicate()
-        outstr = output.decode('utf-8')
-        self.terminalLabel.setText(outstr)
-        # self.terminalLabel.setText(outstr + str(err))
+        outStr = output.decode('utf-8')
+        errStr = err.decode('utf-8')
 
+        if errStr:
+            if outStr:
+                outputText = outStr + '\n' + errStr
+            else:
+                outputText = errStr
+        else:
+            outputText = outStr
+        self.terminalLabel.setText(outputText)
 
-    def Task_i_Click(self, i):
+    def task_i_Click(self, i):
         taskNum = i
-        if self.taskStartTimes[taskNum-1] is None:
+        if self.taskStartTimes[taskNum - 1] is None:
             self.currentTask = taskNum
             self.currentTaskNumLabel.setText("Task %d" % taskNum)
             self.codePrevChangedState = None
@@ -404,15 +399,14 @@ class Dialog_01(QMainWindow):
             # with open(self.latestCodeFiles[taskNum-1], 'r') as f:
             #     code = f.read()
             #     self.codeEditorTextBox.setText(code)
-            code = self.latestCodes[taskNum-1]
+            code = self.latestCodes[taskNum - 1]
             self.codeEditorTextBox.setText(code)
-
 
         if self.currentTask != taskNum:
             oldTask = self.currentTask
             self.currentTask = taskNum
             self.currentTaskNumLabel.setText("Task %d" % taskNum)
-            self.latestCodes[oldTask-1] = self.codeEditorTextBox.toPlainText()
+            self.latestCodes[oldTask - 1] = self.codeEditorTextBox.toPlainText()
             # self.codeChangedLog(self, oldTask-1)
             self.codePrevChangedState = None
             now = time.time() - self.startTime
@@ -429,22 +423,20 @@ class Dialog_01(QMainWindow):
             # with open(self.latestCodeFiles[taskNum - 1], 'r') as f:
             #     code = f.read()
             #     self.codeEditorTextBox.setText(code)
-            code = self.latestCodes[taskNum-1]
+            code = self.latestCodes[taskNum - 1]
             self.codeEditorTextBox.setText(code)
 
-    def Task_1_Click(self):
-        self.Task_i_Click(1)
+    def task_1_Click(self):
+        self.task_i_Click(1)
 
-    def Task_2_Click(self):
-        self.Task_i_Click(2)
+    def task_2_Click(self):
+        self.task_i_Click(2)
 
-    def Task_3_Click(self):
-        self.Task_i_Click(3)
+    def task_3_Click(self):
+        self.task_i_Click(3)
 
-    def Task_4_Click(self):
-        self.Task_i_Click(4)
-
-
+    def task_4_Click(self):
+        self.task_i_Click(4)
 
 
 if __name__ == '__main__':
