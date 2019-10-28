@@ -5,7 +5,8 @@ import subprocess
 ## call date command ##
 import os
 print(os.listdir())
-p = subprocess.Popen("ls hello", stdout=subprocess.PIPE, shell=True)
+p = subprocess.Popen("""#! /bin/sh
+ls hello""", stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
 #TODO: Take errors from the Linux Shell commands and display them
 
 ## Talk with date command i.e. read data from stdout and stderr. Store this info in tuple ##
@@ -14,6 +15,7 @@ p = subprocess.Popen("ls hello", stdout=subprocess.PIPE, shell=True)
 ## or None, if no data should be sent to the child.
 (output, err) = p.communicate()
 outstr = output.decode('utf-8')
+errstr = err.decode('utf-8')
 
 def str_conv(bytes_str):
     s = ''
@@ -23,7 +25,7 @@ def str_conv(bytes_str):
 
 ## Wait for date to terminate. Get return returncode ##
 p_status = p.wait()
-print("Command output : ", output)
+print("Command output : ", outstr+errstr)
 print(type(output.decode("utf-8")))
 for i in output:
     print(chr(i),end='')
@@ -48,7 +50,8 @@ import subprocess, sys
 # cmd = "/bin/netstat -p tcp"
 ## But do not wait till netstat finish, start displaying output immediately ##
 
-cmd = '''for i in 1 2 3 4 5;
+cmd = '''#! /bin/sh
+for i in 1 2 3 4 5;
 do
     echo $i;
     sleep 1;

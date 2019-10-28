@@ -1,3 +1,4 @@
 .idea
 *.log
-Tabs/Codes/*
+main/Codes/*
+#Tabs/Codes/*
