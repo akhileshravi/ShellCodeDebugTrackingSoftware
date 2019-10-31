@@ -1,0 +1,9 @@
+Manual Page 1
+
+ls
+Lists all files and directories in the current directory
+
+ls <path to directory>
+Lists all files and directories in the specified path
+The path can be from the root directory:  ls /home/akhil/Desktop/Files
+The path can be with respect to the current directory (Eg- current directory = /home/akhil/Desktop/): ls Files
