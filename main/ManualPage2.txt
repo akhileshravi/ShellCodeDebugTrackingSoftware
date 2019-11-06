@@ -1,0 +1,10 @@
+Manual Page 2
+
+pwd
+Displays the path to the present working directory
+
+mv <source_path> <destination_path>
+Moves a file/folder from the source to the destination
+
+cp <source_path> <destination_path>
+Copies a file/folder from the source to the destination

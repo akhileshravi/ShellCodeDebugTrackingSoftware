@@ -1,9 +1,7 @@
-Manual Page 1
+Manual Page 3
 
-ls
-Lists all files and directories in the current directory
+echo <text>
+Displays the text
 
-ls <path to directory>
-Lists all files and directories in the specified path
-The path can be from the root directory:  ls /home/akhil/Desktop/Files
-The path can be with respect to the current directory (Eg- current directory = /home/akhil/Desktop/): ls Files
+echo text > path_to_filename
+Writes text to the specified file

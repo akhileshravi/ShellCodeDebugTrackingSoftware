@@ -1,11 +1,12 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
-import sys
+import sys, os
 import subprocess
 import logging
 import time
 from functools import partial
+import shutil
 # from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QTabWidget, QVBoxLayout, QGroupBox,
 #                              QHBoxLayout)
 # from PyQt5 import QtCore, QtGui
@@ -13,10 +14,31 @@ from functools import partial
 
 class MainAppWindow(QMainWindow):
     def __init__(self):
+
         super(QMainWindow, self).__init__()
-        logging.basicConfig(format='%(message)s', level=logging.INFO, filename="TimeLogger.log")
+
+        self.cwd = os.getcwd() + '/'
+        print(self.cwd)
+        self.homePath = self.cwd[:-5]
+        expt = os.path.join(self.homePath, "Experiments")
+        exptNum = len(os.listdir(expt)) + 1
+        self.dataLogPath = os.path.join(self.homePath, "Experiments", "Expt_%d" % exptNum)
+        os.mkdir(self.dataLogPath)
+        self.codeLogPath = os.path.join(self.dataLogPath, "Codes")
+        os.mkdir(self.codeLogPath)
+
+        logging.basicConfig(format='%(message)s', level=logging.INFO,
+                            filename=os.path.join(self.dataLogPath, "TimeLogger.log"))
         self.time_logger = logging.getLogger('Time')
         # TODO: Have proper formatting for the time_logger
+
+        self.numTasks = 3
+        ################ File Paths ################
+        self.taskPaths = ["TaskFiles/Task_%d/" % (i+1) for i in range(self.numTasks)]
+        self.codeFiles = ["Code_%d.sh" % (i+1) for i in range(self.numTasks)]
+        self.readmeFiles = ["ReadMe_%d.txt" % (i+1) for i in range(self.numTasks)]
+
+        os.chdir(self.taskPaths[0])
 
         self.mainLayout = QVBoxLayout()
         self.startButton = QPushButton("Start")
@@ -54,15 +76,13 @@ class MainAppWindow(QMainWindow):
         self.manual = 'Manual'
         self.tabs = {}
 
-        self.numTasks = 4
-
         ################ ReadMe Tab ################
         readme = QWidget()
         readMe_layout = QVBoxLayout()
         readme.setLayout(readMe_layout)
 
         self.readmeLabel = QtWidgets.QLabel()
-        with open('ReadMe1.txt', 'r') as f:
+        with open(self.cwd + self.taskPaths[0] + self.readmeFiles[0], 'r') as f:
             text = f.read()
         self.readmeLabel.setText(text)
         self.readmeLabel.setAlignment(Qt.AlignLeft)
@@ -75,12 +95,12 @@ class MainAppWindow(QMainWindow):
         codeEditor.setLayout(codeEditor_layout)
 
         self.codeEditorTextBox = QTextEdit(self)
-        with open('Code1.txt', 'r') as f:
+        with open(self.cwd + self.taskPaths[0] + self.codeFiles[0], 'r') as f:
             code = f.read()
         self.codeEditorTextBox.setText(code)
         codeEditor_layout.addWidget(self.codeEditorTextBox)
 
-        self.latestCodeFiles = ["Code%d.txt" % (i + 1) for i in range(self.numTasks)]
+        self.latestCodeFiles = [self.cwd + self.taskPaths[i] + self.codeFiles[i] for i in range(self.numTasks)]
         self.latestCodes = [''] * self.numTasks
         for i in range(self.numTasks):
             with open(self.latestCodeFiles[i], 'r') as f:
@@ -89,6 +109,7 @@ class MainAppWindow(QMainWindow):
         self.latestCodeEditTime = [None] * self.numTasks
         self.codeChangeStartTime = [None] * self.numTasks
         self.previousCodeTask = self.currentTask
+        self.prevCodeChanged = False
 
         ################ Terminal Tab ################
         terminal = QWidget()
@@ -98,7 +119,9 @@ class MainAppWindow(QMainWindow):
         self.terminalLayout.addWidget(self.terminalLabel)
 
         self.execute = QPushButton("Execute")
+        self.resetButton = QPushButton("Reset")
         self.terminalLayout.addWidget(self.execute)
+        self.terminalLayout.addWidget(self.resetButton)
 
         ################ Manual Tab ################
         manual = QWidget()
@@ -110,10 +133,16 @@ class MainAppWindow(QMainWindow):
 
         self.numManualPages = 4
 
+        self.manualFiles = ["ManualPage%d.txt" % (i+1) for i in range(self.numManualPages)]
         self.manualPageLabels = QtWidgets.QLabel()
         self.manualButtons = [QPushButton("Page %d" % (i + 1)) for i in range(self.numManualPages)]
-        self.manualPageLabels.setText(
-            "This is page %d.\nDo the following.\n  1. Read.\n  2. Write.\n  3. Execute" % 1)
+        pageNum = 1
+        self.currentManualPage = pageNum
+        with open(self.cwd + self.manualFiles[pageNum - 1], 'r') as f:
+            manText = f.read()
+        self.manualPageLabels.setText(manText)
+        # self.manualPageLabels.setText(
+        #     "This is page %d.\nDo the following.\n  1. Read.\n  2. Write.\n  3. Execute" % 1)
         # self.manualPageClicked = [self.manualPage1, self.manualPage2, self.manualPage3, self.manualPage4]
         self.manualButtonBox = QGroupBox()
         self.manualButtonsLayout = QHBoxLayout()
@@ -169,7 +198,6 @@ class MainAppWindow(QMainWindow):
             self.Task_Buttons[i].clicked.connect(partial(self.task_i_Click, i + 1))
 
         self.codeEditorTextBox.textChanged.connect(self.codeChanged)
-
         # TODO: When was each task started and ended
 
     def startButtonClicked(self, s="Default"):
@@ -180,6 +208,7 @@ class MainAppWindow(QMainWindow):
         try:
             self.codeIntervalTime = float(self.codeIntervalText.text())
             print("Code interval time: %.2f" % self.codeIntervalTime)
+            self.time_logger.info("Code Interval Time: %d s\n --------" % self.codeIntervalTime)
         except ValueError:
             return
         self.codeIntervalLabel.setDisabled(True)
@@ -205,8 +234,12 @@ class MainAppWindow(QMainWindow):
         pageNum = i
         if self.currentManualPage != pageNum:
             self.currentManualPage = pageNum
-            self.manualPageLabels.setText(
-                "This is page %d.\nDo the following.\n  1. Read.\n  2. Write.\n  3. Execute" % pageNum)
+            self.currentManualPage = pageNum
+            with open(self.cwd + self.manualFiles[pageNum - 1], 'r') as f:
+                manText = f.read()
+            self.manualPageLabels.setText(manText)
+            # self.manualPageLabels.setText(
+            #     "This is page %d.\nDo the following.\n  1. Read.\n  2. Write.\n  3. Execute" % pageNum)
             now = time.time() - self.startTime
             now_minutes = int(now // 60)
             now_seconds = round(now % 60, 1)
@@ -226,8 +259,10 @@ class MainAppWindow(QMainWindow):
                 pageNum = 1
                 if self.currentTab == self.tabIndex[3]:
                     self.currentManualPage = pageNum
-                    self.manualPageLabels.setText(
-                        "This is page %d.\nDo the following.\n  1. Read.\n  2. Write.\n  3. Execute" % pageNum)
+                    with open(self.cwd + self.manualFiles[pageNum-1], 'r') as f:
+                        manText = f.read()
+                    self.manualPageLabels.setText(manText)
+                        # "This is page %d.\nDo the following.\n  1. Read.\n  2. Write.\n  3. Execute" % pageNum)
                     self.time_logger.info("Manual page %d:   %d:%.1fs" % (pageNum, now_minutes, now_seconds))
 
                 # taskIndex = self.currentTask - 1
@@ -247,42 +282,57 @@ class MainAppWindow(QMainWindow):
     # noinspection PyTypeChecker
     def codeChanged(self):
         # TODO: Summarised code modification logging
-        # nt
-        # taskChangedFlag = False
+        taskChangedFlag = False
         if self.previousCodeTask != self.currentTask:
             taskNum = self.previousCodeTask
+            taskChangedFlag = True
+            taskIndex = taskNum - 1
+            now = time.time() - self.startTime
+
+            self.codeChangeStartTime[self.currentTask-1] = None
+            self.latestCodeEditTime[self.currentTask-1] = None
+
+            if self.prevCodeChanged:
+                self.codeChangedLog(taskIndex)
+            code = self.codeEditorTextBox.toPlainText()
+            # self.latestCodes[taskIndex] = code
+            # self.codeEditorTextBox.setText(code)   #DoNOT uncomment this line
             self.previousCodeTask = self.currentTask
-            # taskChangedFlag = True
+            print("Code Task changed")
+            self.prevCodeChanged = False
+
         else:
             taskNum = self.currentTask
-        taskIndex = taskNum - 1
-        now = time.time() - self.startTime
+            taskIndex = taskNum - 1
+            now = time.time() - self.startTime
 
-        # now_minutes = int(now // 60)
-        # now_seconds = int(now % 60)
-        # now_millis = int(now * 1000)
+            # now_minutes = int(now // 60)
+            # now_seconds = int(now % 60)
+            # now_millis = int(now * 1000)
 
-        if self.latestCodeEditTime[taskIndex] is None:
-            self.codeChangeStartTime[taskIndex] = now
-            self.latestCodeEditTime[taskIndex] = now
+            if self.latestCodeEditTime[taskIndex] is None:
+                self.codeChangeStartTime[taskIndex] = now
+                self.latestCodeEditTime[taskIndex] = now
 
-        elif now - self.latestCodeEditTime[taskIndex] < self.codeIntervalTime:
-            self.latestCodeEditTime[taskIndex] = now
-            return
-        else:
-            self.codeChangeStartTime[taskIndex] = now
-            self.latestCodeEditTime[taskIndex] = now
-            self.codeChangedLog(taskIndex)
-        code = self.codeEditorTextBox.toPlainText()
-        self.latestCodes[self.currentTask - 1] = code
-        # self.codeEditorTextBox.setText(code)   #DoNOT uncomment this line
+            elif now - self.latestCodeEditTime[taskIndex] < self.codeIntervalTime:
+                self.latestCodeEditTime[taskIndex] = now
+
+            else:
+                self.codeChangeStartTime[taskIndex] = now
+                self.latestCodeEditTime[taskIndex] = now
+                self.codeChangedLog(taskIndex)
+            code = self.codeEditorTextBox.toPlainText()
+            self.latestCodes[taskIndex] = code
+            self.prevCodeChanged = True
+            # self.codeEditorTextBox.setText(code)   #DoNOT uncomment this line
+
 
     # noinspection PyTypeChecker
     def codeChangedLog(self, taskIndex):
         prevStartTime = self.codeChangeStartTime[taskIndex]
         prevEndTime = self.latestCodeEditTime[taskIndex]
 
-        code = self.codeEditorTextBox.toPlainText()
+        code = self.latestCodes[taskIndex]
         start_minutes = int(prevStartTime // 60)
         start_seconds = int(prevStartTime % 60)
         start_millis = int(prevStartTime * 1000)
@@ -290,13 +340,33 @@ class MainAppWindow(QMainWindow):
         end_seconds = int(prevEndTime % 60)
         end_millis = int(prevEndTime * 1000)
 
-        fname = 'Codes/Code%d___%d_%d_%d___%d_%d_%d.txt' % (self.currentTask, start_minutes, start_seconds,
+        fname = os.path.join(self.codeLogPath,
+                             'Code%d___%d_%d_%d___%d_%d_%d.txt' % (self.currentTask, start_minutes, start_seconds,
                                                             start_millis, end_minutes, end_seconds, end_millis)
+                             )
         with open(fname, 'w') as f:
             f.write(code)
         self.time_logger.info("Code changed: \n    Start:  %d:%.1fs \n    End:  %d:%.1fs\n" % (
             start_minutes, start_seconds, end_minutes, end_seconds))
         print("Code changed")
+
+    def resetClicked(self):
+        now = time.time()
+        now_minutes = int(now // 60)
+        now_seconds = int(now % 60)
+
+        taskIndex = self.currentTask - 1
+        with open(self.latestCodeFiles[taskIndex], 'r') as f:
+            code = f.read()
+            self.latestCodes[taskIndex] = code
+        self.codeEditorTextBox.setText(f.read())
+        self.time_logger.info("Reset code: %d:%.1f" % (now_minutes, now_seconds))
+        os.chdir(self.cwd)
+        copyPath = os.path.join(self.cwd, "main", "OriginalTaskFiles", "Task_%d"%(taskIndex+1))
+        rmPath = os.path.join(self.cwd, "main", "TaskFiles", "Task_%d"%(taskIndex+1))
+        shutil.rmtree(rmPath)
+        shutil.copytree(copyPath, rmPath)
+        os.chdir(self.cwd + self.taskPaths[taskIndex])
 
     def closeEvent(self, event):
         try:
@@ -307,10 +377,9 @@ class MainAppWindow(QMainWindow):
         now_seconds = int(now % 60)
         now_millis = int(now * 1000)
 
-        for i in range(self.numTasks):
-            taskIndex = i
-            if self.latestCodeEditTime[taskIndex] is not None:
-                self.codeChangedLog(taskIndex)
+        taskIndex = self.currentTask - 1
+        if self.prevCodeChanged:
+            self.codeChangedLog(taskIndex)
 
         for i in range(self.numTasks):
             if self.taskEndTimes[i] is None:
@@ -327,6 +396,7 @@ class MainAppWindow(QMainWindow):
         sys.exit()
 
     def executeClicked(self):
+        os.chdir(self.cwd + self.taskPaths[self.currentTask-1])
         code = self.codeEditorTextBox.toPlainText()
         # p = subprocess.Popen("ls hello", stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
         p = subprocess.Popen(code, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
@@ -347,8 +417,11 @@ class MainAppWindow(QMainWindow):
 
     def task_i_Click(self, i):
         taskNum = i
+        taskIndex = i-1
         print("TaskNum:",i)
         if self.taskStartTimes[taskNum - 1] is None:
+            os.chdir("../../")
+            os.chdir(self.taskPaths[taskIndex])
             self.currentTask = taskNum
             self.currentTaskNumLabel.setText("Task %d" % taskNum)
             self.codePrevChangedState = None
@@ -362,14 +435,17 @@ class MainAppWindow(QMainWindow):
             self.taskStartTimes[taskNum - 1] = [now_minutes, now_seconds]
 
             self.tabWidget.setCurrentIndex(0)
-            with open('ReadMe%d.txt' % taskNum, 'r') as f:
+            with open(self.cwd + self.taskPaths[taskNum-1] + self.readmeFiles[taskNum-1], 'r') as f:
                 text = f.read()
                 self.readmeLabel.setText(text)
 
-            code = self.latestCodes[taskNum - 1]
+            code = self.latestCodes[taskIndex]
             self.codeEditorTextBox.setText(code)
+            self.terminalLabel.clear()
 
         if self.currentTask != taskNum:
+            os.chdir("../../")
+            os.chdir(self.taskPaths[taskIndex])
             oldTask = self.currentTask
             self.currentTask = taskNum
             self.currentTaskNumLabel.setText("Task %d" % taskNum)
@@ -383,7 +459,7 @@ class MainAppWindow(QMainWindow):
             self.time_logger.info("Tab %s:   %d:%.1fs" % ("Read Me", now_minutes, now_seconds))
 
             self.tabWidget.setCurrentIndex(0)
-            with open('ReadMe%d.txt' % taskNum, 'r') as f:
+            with open(self.cwd + self.taskPaths[taskIndex] + self.readmeFiles[taskIndex], 'r') as f:
                 text = f.read()
                 self.readmeLabel.setText(text)
 
@@ -392,12 +468,13 @@ class MainAppWindow(QMainWindow):
             #     self.codeEditorTextBox.setText(code)
             code = self.latestCodes[taskNum - 1]
             self.codeEditorTextBox.setText(code)
+            self.terminalLabel.clear()
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     mainWin = MainAppWindow()
     mainWin.show()
-    # mainWin.resize(1366, 720)
-    mainWin.resize(640, 480)
+    mainWin.resize(1366, 720)
+    # mainWin.resize(960, 640)
     sys.exit(app.exec_())
