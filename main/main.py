@@ -7,6 +7,9 @@ import logging
 import time
 from functools import partial
 import shutil
+from PyQt5.QtMultimediaWidgets import QVideoWidget
+from PyQt5.QtCore import QUrl
+from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 # from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QTabWidget, QVBoxLayout, QGroupBox,
 #                              QHBoxLayout)
 # from PyQt5 import QtCore, QtGui
@@ -74,6 +77,7 @@ class MainAppWindow(QMainWindow):
         self.codeEditor = 'Code Editor'
         self.terminal = 'Terminal'
         self.manual = 'Manual'
+        self.video = 'Video'
         self.tabs = {}
 
         ################ ReadMe Tab ################
@@ -157,17 +161,38 @@ class MainAppWindow(QMainWindow):
         self.manualLayout.addWidget(self.manualButtonBox)
         self.currentManualPage = None
 
+        ################ Video Tab ################
+
+        self.videotab = QWidget()
+        self.video_layout = QVBoxLayout()
+        self.videotab.setLayout(self.video_layout)
+        self.videowidget = QVideoWidget()
+        self.videowidget.resize(300, 300)
+        self.videowidget.move(0, 0)
+        self.player = QMediaPlayer()
+        self.player.setVideoOutput(self.videowidget)
+        self.player.setMedia(QMediaContent(QUrl.fromLocalFile("/home/akhil/Videos/SoftwareTrial.mp4")))
+
+        self.videoButton = QPushButton('Start Video')
+        self.videoButton.clicked.connect(self.callback)
+        self.video_layout.addWidget(self.videowidget)
+        # self.video_layout.addWidget(self.player)
+        self.video_layout.addWidget(self.videoButton)
+
+
         ################ Tab Layout ################
-        self.tabIndex = {0: self.readMe, 1: self.codeEditor, 2: self.terminal, 3: self.manual}
+        self.tabIndex = {0: self.readMe, 1: self.codeEditor, 2: self.terminal, 3: self.manual, 4:self.videotab}
         self.tabs[self.readMe] = readme
         self.tabs[self.codeEditor] = codeEditor
         self.tabs[self.terminal] = terminal
         self.tabs[self.manual] = manual
+        self.tabs[self.video] = self.videotab
 
         self.tabWidget.addTab(self.tabs[self.readMe], self.readMe)
         self.tabWidget.addTab(self.tabs[self.codeEditor], self.codeEditor)
         self.tabWidget.addTab(self.tabs[self.terminal], self.terminal)
         self.tabWidget.addTab(self.tabs[self.manual], self.manual)
+        self.tabWidget.addTab(self.tabs[self.video], self.video)
 
         ################ Tasks ################
         # self.numTasks ->  # Defined earlier
@@ -245,6 +270,11 @@ class MainAppWindow(QMainWindow):
             now_seconds = round(now % 60, 1)
             # self.time_logger.info("\nTask %d %d:%.1fs" % (self.currentTask, now_minutes, now_seconds))
             self.time_logger.info("Manual page %d:   %d:%.1fs" % (pageNum, now_minutes, now_seconds))
+
+    def callback(self):
+        self.player.setPosition(0) # to start at the beginning of the videowidget every time
+        self.videowidget.show()
+        self.player.play()
 
     def whatTab(self):
         currentIndex = self.tabWidget.currentIndex()
