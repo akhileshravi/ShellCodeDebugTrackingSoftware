@@ -1,7 +1,5 @@
 ------------------------------------------------------------------------------------------------------
-
 TASK -4
-
 ------------------------------------------------------------------------------------------------------
 CONTEXT
 
@@ -12,7 +10,6 @@ that day.
 
 Note: For first student assume that the previous two values of number of ice-cream is equal to zero.
 ------------------------------------------------------------------------------------------------------
-
 Pseudo Code
 
 PROGRAM START
@@ -21,18 +18,15 @@ first_student=1
 second_student=1
 current_student=0
 for i = 3 to 30 (one by one)
-do 
+do
 	current_student=first_student+second_student
 	second_student=first_student
 	first_student=current_student
 	total_icecream=total_icecream+ current_student
-	
-done 
+
+done
 print (Total number of Ice-cream= total_icecream)
 PROGRAM END
 
 ------------------------------------------------------------------------------------------------------
-
 CORRECT OUTPUT
-
-

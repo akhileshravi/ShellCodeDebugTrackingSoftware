@@ -1,6 +1,5 @@
 Manual Page 4
 
-
 echo <text>
 Displays the text
 

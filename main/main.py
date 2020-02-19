@@ -7,7 +7,7 @@ import logging
 import time
 from functools import partial
 import shutil
-from PyQt5.QtMultimediaWidgets import QVideoWidget
+# from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtCore import QUrl
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 # from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QTabWidget, QVBoxLayout, QGroupBox,
@@ -77,7 +77,7 @@ class MainAppWindow(QMainWindow):
         self.codeEditor = 'Code Editor'
         self.terminal = 'Terminal'
         self.manual = 'Manual'
-        self.video = 'Video'
+        # self.video = 'Video'
         self.tabs = {}
 
         #TODO: Use correct number of characters per line in the readme files. (readme file 1 is different between Task files and Orig..)
@@ -167,36 +167,36 @@ class MainAppWindow(QMainWindow):
 
         ################ Video Tab ################
 
-        self.videotab = QWidget()
-        self.video_layout = QVBoxLayout()
-        self.videotab.setLayout(self.video_layout)
-        self.videowidget = QVideoWidget()
-        self.videowidget.resize(300, 300)
-        self.videowidget.move(0, 0)
-        self.player = QMediaPlayer()
-        self.player.setVideoOutput(self.videowidget)
-        self.player.setMedia(QMediaContent(QUrl.fromLocalFile("/home/akhil/Videos/SoftwareTrial.mp4")))
-
-        self.videoButton = QPushButton('Start Video')
-        self.videoButton.clicked.connect(self.callback)
-        self.video_layout.addWidget(self.videowidget)
-        # self.video_layout.addWidget(self.player)
-        self.video_layout.addWidget(self.videoButton)
+        # self.videotab = QWidget()
+        # self.video_layout = QVBoxLayout()
+        # self.videotab.setLayout(self.video_layout)
+        # self.videowidget = QVideoWidget()
+        # self.videowidget.resize(300, 300)
+        # self.videowidget.move(0, 0)
+        # self.player = QMediaPlayer()
+        # self.player.setVideoOutput(self.videowidget)
+        # self.player.setMedia(QMediaContent(QUrl.fromLocalFile("/home/akhil/Videos/SoftwareTrial.mp4")))
+        #
+        # self.videoButton = QPushButton('Start Video')
+        # self.videoButton.clicked.connect(self.callback)
+        # self.video_layout.addWidget(self.videowidget)
+        # # self.video_layout.addWidget(self.player)
+        # self.video_layout.addWidget(self.videoButton)
 
 
         ################ Tab Layout ################
-        self.tabIndex = {0: self.readMe, 1: self.codeEditor, 2: self.terminal, 3: self.manual, 4:self.videotab}
+        self.tabIndex = {0: self.readMe, 1: self.codeEditor, 2: self.terminal, 3: self.manual} #, 4:self.videotab}
         self.tabs[self.readMe] = readme
         self.tabs[self.codeEditor] = codeEditor
         self.tabs[self.terminal] = terminal
         self.tabs[self.manual] = manual
-        self.tabs[self.video] = self.videotab
+        # self.tabs[self.video] = self.videotab
 
         self.tabWidget.addTab(self.tabs[self.readMe], self.readMe)
         self.tabWidget.addTab(self.tabs[self.codeEditor], self.codeEditor)
         self.tabWidget.addTab(self.tabs[self.terminal], self.terminal)
         self.tabWidget.addTab(self.tabs[self.manual], self.manual)
-        self.tabWidget.addTab(self.tabs[self.video], self.video)
+        # self.tabWidget.addTab(self.tabs[self.video], self.video)
 
         ################ Tasks ################
         # self.numTasks ->  # Defined earlier

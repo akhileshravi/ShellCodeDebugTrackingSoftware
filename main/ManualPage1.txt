@@ -6,14 +6,14 @@ Let us say that we are in the "P1" folder that is located in the
 
 Current location: "/home/akhilesh/Desktop/Programs/P1/"
 
-. or ./   -> refers to the current location (refers to "P1")
-.. or ../   -> refers to the parent directory/ the directory that contains above this location
+"." or "./"   -> refers to the current location (refers to "P1")
+".." or "../"   -> refers to the parent directory/ the directory that contains above this location
     (refers to "Programs" folder)
 
-/home/akhilesh/Desktop/Programs/P1/  -> Full path to a directory (the current directory)
-/home/akhilesh/Desktop/Programs/P1/file0.txt  -> Full path to a file
+"/home/akhilesh/Desktop/Programs/P1/"  -> Full path to a directory (the current directory)
+"/home/akhilesh/Desktop/Programs/P1/file0.txt"  -> Full path to a file
 
-P1_a/Folder1_a/  -> Path to Folder1_a which is in P1_a which is in the current directory (P1)
+"P1_a/Folder1_a/"  -> Path to Folder1_a which is in P1_a which is in the current directory (P1)
 /home/akhilesh/Desktop/Programs/P1/P1_a/Folder1_a/  -> Same location as above
 
 P1_a/file1_a.txt  -> Path to file1_a.txt which is in P1_a which is in the current directory (P1)
