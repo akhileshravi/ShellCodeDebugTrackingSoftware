@@ -1,7 +1,23 @@
 Manual Page 3
 
-echo <text>
-Displays the text
+cd <path to directory>
+Changes to specified path and makes it the new current working directory
+The path can be mentioned in a similar way as shown above for "ls"
 
-echo text > path_to_filename
-Writes text to the specified file
+mv <source_path> <destination_path>
+Moves a file/folder from the source to the destination
+The paths can be mentioned in a similar way as shown for "ls"
+
+cp <source_path> <destination_path>
+Copies a file/folder from the source to the destination
+To copy a folder, use "cp -r <source_path> <destination_path>"
+The paths can be mentioned in a similar way as shown for "ls"
+
+rm <path to file>
+Deletes a file name
+The paths can be mentioned in a similar way as shown for "ls"
+
+rm -r <path to directory>
+Deletes a folder
+The paths can be mentioned in a similar way as shown for "ls"
+

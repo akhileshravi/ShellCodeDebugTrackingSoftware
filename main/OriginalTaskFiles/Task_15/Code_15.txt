@@ -1,0 +1,5 @@
+#! /bin/sh
+
+cd ./TODO/WORK
+mv Work.txt ../TODO
+ls ../TODO

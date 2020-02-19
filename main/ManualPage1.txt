@@ -1,9 +1,21 @@
 Manual Page 1
 
-ls
-Lists all files and directories in the current directory
+<path to file or directory>
+Let us say that we are in the "P1" folder that is located in the
+"Programs" folder which is located in the "Desktop"
 
-ls <path to directory>
-Lists all files and directories in the specified path
-The path can be from the root directory:  ls /home/akhil/Desktop/Files
-The path can be with respect to the current directory (Eg- current directory = /home/akhil/Desktop/): ls Files
+Current location: "/home/akhilesh/Desktop/Programs/P1/"
+
+. or ./   -> refers to the current location (refers to "P1")
+.. or ../   -> refers to the parent directory/ the directory that contains above this location
+    (refers to "Programs" folder)
+
+/home/akhilesh/Desktop/Programs/P1/  -> Full path to a directory (the current directory)
+/home/akhilesh/Desktop/Programs/P1/file0.txt  -> Full path to a file
+
+P1_a/Folder1_a/  -> Path to Folder1_a which is in P1_a which is in the current directory (P1)
+/home/akhilesh/Desktop/Programs/P1/P1_a/Folder1_a/  -> Same location as above
+
+P1_a/file1_a.txt  -> Path to file1_a.txt which is in P1_a which is in the current directory (P1)
+/home/akhilesh/Desktop/Programs/P1/P1_a/file1_a.txt  -> Same location as above
+

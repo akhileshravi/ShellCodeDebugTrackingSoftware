@@ -1,4 +1,11 @@
 Manual Page 4
 
+
+echo <text>
+Displays the text
+
+echo text > path_to_filename
+Writes text to the specified file
+
 rm <path_to_file>
 Removes the specified file

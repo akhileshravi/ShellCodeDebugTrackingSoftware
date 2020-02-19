@@ -1,10 +1,20 @@
 Manual Page 2
 
+Current location: "/home/akhilesh/Desktop/Programs/P1/"
+
+ls
+Lists all files and directories in the current directory
+
+ls <path to directory>
+Lists all files and directories in the specified path
+The path can be from the root directory:  ls /home/akhil/Desktop/Files
+ls .  -> lists files in the current directory
+ls ..  -> lists files in the parent directory
+The path can be with respect to the current directory
+    (Eg- current directory = /home/akhilesh/Desktop/Programs/P1/):
+    "ls P1_a/Folder1_a"
+    or "ls ./P1_a/Folder1_a"
+    or "ls /home/akhilesh/Desktop/Programs/P1/P1_a/Folder1_a"
+
 pwd
 Displays the path to the present working directory
-
-mv <source_path> <destination_path>
-Moves a file/folder from the source to the destination
-
-cp <source_path> <destination_path>
-Copies a file/folder from the source to the destination

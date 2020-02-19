@@ -35,7 +35,7 @@ class MainAppWindow(QMainWindow):
         self.time_logger = logging.getLogger('Time')
         # TODO: Have proper formatting for the time_logger
 
-        self.numTasks = 3
+        self.numTasks = 12
         ################ File Paths ################
         self.taskPaths = ["TaskFiles/Task_%d/" % (i+1) for i in range(self.numTasks)]
         self.codeFiles = ["Code_%d.sh" % (i+1) for i in range(self.numTasks)]
@@ -80,6 +80,9 @@ class MainAppWindow(QMainWindow):
         self.video = 'Video'
         self.tabs = {}
 
+        #TODO: Use correct number of characters per line in the readme files. (readme file 1 is different between Task files and Orig..)
+
+
         ################ ReadMe Tab ################
         readme = QWidget()
         readMe_layout = QVBoxLayout()
@@ -114,6 +117,7 @@ class MainAppWindow(QMainWindow):
         self.codeChangeStartTime = [None] * self.numTasks
         self.previousCodeTask = self.currentTask
         self.prevCodeChanged = False
+        self.taskChangedFlag = False
 
         ################ Terminal Tab ################
         terminal = QWidget()
@@ -201,7 +205,7 @@ class MainAppWindow(QMainWindow):
         self.TaskButtonsLayout = QHBoxLayout()
         self.TaskButtonBox.setLayout(self.TaskButtonsLayout)
 
-        self.Task_Buttons = [QPushButton("Task %d" % (i + 1)) for i in range(4)]
+        self.Task_Buttons = [QPushButton("Task %d" % (i + 1)) for i in range(self.numTasks)]
 
         for i in range(self.numTasks):
             self.TaskButtonsLayout.addWidget(self.Task_Buttons[i])
@@ -251,6 +255,7 @@ class MainAppWindow(QMainWindow):
         self.currentTabName = self.tabIndex[0]
         self.time_logger.info("Start Time: %s\n\n" % time.asctime())
         self.startTime = time.time()
+
 
     def tabSelected(self, arg=None):
         print('\n\t tabSelected() current Tab index =', arg)
@@ -312,10 +317,10 @@ class MainAppWindow(QMainWindow):
     # noinspection PyTypeChecker
     def codeChanged(self):
         # TODO: Summarised code modification logging
-        taskChangedFlag = False
+        # self.taskChangedFlag = False
         if self.previousCodeTask != self.currentTask:
             taskNum = self.previousCodeTask
-            taskChangedFlag = True
+            # self.taskChangedFlag = True
             taskIndex = taskNum - 1
             now = time.time() - self.startTime
 
@@ -389,7 +394,7 @@ class MainAppWindow(QMainWindow):
         with open(self.latestCodeFiles[taskIndex], 'r') as f:
             code = f.read()
             self.latestCodes[taskIndex] = code
-        self.codeEditorTextBox.setText(f.read())
+        # self.codeEditorTextBox.setText(code)
         self.time_logger.info("Reset code: %d:%.1f" % (now_minutes, now_seconds))
         os.chdir(self.cwd)
         copyPath = os.path.join(self.cwd, "main", "OriginalTaskFiles", "Task_%d"%(taskIndex+1))
@@ -397,6 +402,10 @@ class MainAppWindow(QMainWindow):
         shutil.rmtree(rmPath)
         shutil.copytree(copyPath, rmPath)
         os.chdir(self.cwd + self.taskPaths[taskIndex])
+        with open(self.cwd + self.taskPaths[taskIndex] + self.codeFiles[taskIndex], 'r') as f:
+            code = f.read()
+            self.latestCodes[taskIndex] = code
+        self.codeEditorTextBox.setText(code)
 
     def closeEvent(self, event):
         try:
@@ -429,20 +438,17 @@ class MainAppWindow(QMainWindow):
         os.chdir(self.cwd + self.taskPaths[self.currentTask-1])
         code = self.codeEditorTextBox.toPlainText()
         # p = subprocess.Popen("ls hello", stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
-        p = subprocess.Popen(code, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
-        # TODO: Save the task status
-        # TODO: When does the task end (complete)
-        (output, err) = p.communicate()
-        outStr = output.decode('utf-8')
-        errStr = err.decode('utf-8')
+        codelines = code.split('\n')
+        outStr = ''
+        for line in codelines:
+            p = subprocess.Popen(line, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
+            # TODO: Save the task status
+            # TODO: When does the task end (complete)
+            (output, err) = p.communicate()
+            outStr += output.decode('utf-8')
+            outStr += err.decode('utf-8')
 
-        if errStr:
-            if outStr:
-                outputText = outStr + '\n' + errStr
-            else:
-                outputText = errStr
-        else:
-            outputText = outStr
+        outputText = outStr
         self.terminalLabel.setText(outputText)
 
     def task_i_Click(self, i):
@@ -476,6 +482,7 @@ class MainAppWindow(QMainWindow):
         if self.currentTask != taskNum:
             os.chdir("../../")
             os.chdir(self.taskPaths[taskIndex])
+            self.taskChangedFlag = True
             oldTask = self.currentTask
             self.currentTask = taskNum
             self.currentTaskNumLabel.setText("Task %d" % taskNum)
@@ -505,6 +512,6 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     mainWin = MainAppWindow()
     mainWin.show()
+    # mainWin.resize(1366, 720)
     mainWin.resize(1366, 720)
-    # mainWin.resize(960, 640)
     sys.exit(app.exec_())
