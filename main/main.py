@@ -9,7 +9,7 @@ from functools import partial
 import shutil
 # from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtCore import QUrl
-from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
+# from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 # from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QTabWidget, QVBoxLayout, QGroupBox,
 #                              QHBoxLayout)
 # from PyQt5 import QtCore, QtGui
